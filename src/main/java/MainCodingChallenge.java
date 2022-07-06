@@ -1,6 +1,8 @@
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class MainCodingChallenge {
 
@@ -22,29 +24,47 @@ public class MainCodingChallenge {
         useOptional(null);
         useStream(users);
         useStream(null);
-        useCompletableFuture(5, 6);
+        System.out.println(useCompletableFuture(5, 6));
     }
 
     public Integer useOptional(String value) {
-        /* TODO: Create an Optional and assign the 'value' param passed to the function.
-         * Return the length of 'value'. In case 'value' is null return '-1' as default.
-         */
-        return -1;
+        return Optional.ofNullable(value).map(String::length).orElse(-1);
+
+//        /* TODO: Create an Optional and assign the 'value' param passed to the function.
+//         * Return the length of 'value'. In case 'value' is null return '-1' as default.
+//         */
+//        return -1;
     }
 
     public List<String> useStream(List<User> users) {
+        return Optional.ofNullable(users).orElse(List.of()).stream().filter(u -> u.getAge() >= 40).map(User::getName).collect(Collectors.toList());
+
         /* TODO: Filter the 'this.users' array for users under the age of 40.
          * Return a List of the remaining users names.
          */
-        return null;
+//        return null;
     }
 
     public Integer useCompletableFuture(int a, int b) {
+        ExecutorService es = Executors.newFixedThreadPool(5);
+
+        Supplier<Integer> task = () -> addFun1(a, b);
+        CompletableFuture<Integer> cf = CompletableFuture.supplyAsync(task, es);
+
+        try {
+            return cf.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } finally {
+            es.shutdown();
+        }
         /* TODO: Create an Executor with a fixed pool of 5 threads.
          * Create a CompletableFuture and use it to pass 'this.addFun1(...)' to the Executor.
          * Wait until the response is received and return it.
          */
-        return -1;
+//        return -1;
     }
 
     public Integer addFun1(int a, int b) {
